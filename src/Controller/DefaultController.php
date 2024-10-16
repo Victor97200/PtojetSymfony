@@ -5,15 +5,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 class DefaultController extends AbstractController
 {
-    #[Route('/')]
+    #[Route('/', name: 'home')]
     public function homeAction(): Response
     {
-        return new Response('Hello World !');
+        return $this->render('base.html.twig');
     }
 
-    #[Route('/a-propos')]
+    #[Route('/a-propos', name: 'a-propos')]
     public function aboutAction(): Response
     {
         return new Response('a propos');
     }
+
+
 }
