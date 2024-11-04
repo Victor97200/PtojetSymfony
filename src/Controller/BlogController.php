@@ -9,16 +9,37 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class BlogController extends AbstractController
 {
-    #[Route('/blog/list/{page}', name: 'blog', requirements: ['page' => '\d+'], defaults: ['page' => 1])]
-    public function listAction($page): Response
+
+    #[Route('/blog/{page}', name: 'blog', requirements: ['page' => '\d+'], defaults: ['page' => 1])]
+    public function listAction(): Response
     {
-        return new Response("<body>$page</body>");
+        $articles = [
+            ['id' => 1, 'title' => 'Article 1', 'content' => 'This is the content for Article 1.'],
+            ['id' => 2, 'title' => 'Article 2', 'content' => 'This is the content for Article 2.'],
+            // Add more articles as needed
+        ];
+
+        return $this->render('blog/list.html.twig', ['articles' => $articles]);
     }
 
     #[Route('/blog/article/{idArticle}', name: 'blog_article', requirements: ['idArticle' => '\d+'], defaults: ['idArticle' => 1])]
     public function viewAction($idArticle): Response
     {
-        return new Response("<body>$idArticle</body>");
+        $articles = [
+            ['id' => 1, 'title' => 'Article 1', 'content' => 'This is the content for Article 1.'],
+            ['id' => 2, 'title' => 'Article 2', 'content' => 'This is the content for Article 2.'],
+            ['id' => 3, 'title' => 'Article 3', 'content' => 'This is the content for Article 3.'],
+        ];
+
+        $filteredArticles = array_filter($articles, function($art) use ($idArticle) {
+            return $art['id'] == $idArticle;
+        });
+
+        if (empty($filteredArticles)) {
+            throw $this->createNotFoundException('The article does not exist');
+        }
+
+        return $this->render('blog/view.html.twig', ['article' => reset($filteredArticles)]);
     }
 
     #[Route('/blog/article/add', name: 'blog_add')]
@@ -59,9 +80,13 @@ class BlogController extends AbstractController
     #[Route('/last-articles', name: 'last-articles')]
     public function lastArticlesAction($nbArticles): Response
     {
-        $articles = [];
+        $articles = [
+            ['id' => 1, 'title' => 'Article 1', 'content' => 'This is the content for Article 1.'],
+            ['id' => 2, 'title' => 'Article 2', 'content' => 'This is the content for Article 2.'],
+            ['id' => 3, 'title' => 'Article 3', 'content' => 'This is the content for Article 3.'],
+        ];
         for ($i = 1; $i <= $nbArticles; $i++) {
-            $articles[] = ['name' => 'Article ' . $i];
+            $articles[] = ['id' => $i, 'title' => 'Article ' . $i, 'content' => 'This is content for article ' . $i];
         }
         return $this->render('blog/last_articles.html.twig',['articles' => $articles]);
     }

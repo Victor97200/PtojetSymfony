@@ -1,0 +1,10 @@
+{% extends 'blog/blog.html.twig' %}
+
+{% block content_blog %}
+    {% for article in articles %}
+        <article>
+            <h2>{{ article.title }}</h2>
+            <p>{{ article.content }}</p>
+        </article>
+    {% endfor %}
+{% endblock %}

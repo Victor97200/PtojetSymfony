@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Blog Page{% endblock %}
+
+{% block h1 %}Welcome to the Blog Page{% endblock %}
+
+{% block menu %}
+    {{ parent() }}
+    <a href="{{ path('blog_add') }}">Ajouté un article</a>
+{% endblock %}
+
+{% block content %}
+    <h2>mon Blog</h2>
+    <p>Welcome to our blog. Here, we share our thoughts, ideas, and experiences.</p>
+    <div>
+        {% block content_blog %}
+
+        {% endblock %}
+    </div>
+{% endblock %}

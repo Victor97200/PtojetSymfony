@@ -2,22 +2,31 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Mon blog{% endblock %}</title>
+    <title>{% block title %} Titre de page par défaut {% endblock %}</title>
 </head>
 <body>
-<h1>{% block h1 %}Bienvenue sur le blog !{% endblock %}</h1>
-{% block menu %}
-    <a href="{{ path('home') }}">Lien vers page accueil</a>
-    <a href="{{ path('blog') }}">Lien vers page blog</a>
-    <a href="{{ path('a-propos') }}">Lien vers page a-propos</a>
-    <a href="{{ path('blog_add') }}">Ajouté un article</a>
+<h1>{% block h1 %} Titre h1 par défault {% endblock %}</h1>
 
+{% block menu %}
+    <a href="{{ path('home') }}">Accueil</a>
+    <a href="{{ path('blog') }}">Blog</a>
+    <a href="{{ path('a-propos') }}">A propos</a>
 {% endblock %}
+
 {% block left_menu %}
     {{ render(controller('App\\Controller\\BlogController::lastArticlesAction',{'nbArticles':3})) }}
 {% endblock %}
-{% block content_blog %}
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="flash-{{ label }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+{% block content %}
+    <p>Contenu de la page d’accueil ici</p>
 {% endblock %}
-<p>Bienvenue sur le blog</p>
 </body>
 </html>

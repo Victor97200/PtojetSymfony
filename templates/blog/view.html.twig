@@ -1,0 +1,15 @@
+{% extends 'blog/blog.html.twig' %}
+
+{% block h1 %}Article Details{% endblock %}
+
+{% block content_blog %}
+    <article>
+        <h2>{{ article.title }}</h2>
+        <p>{{ article.content }}</p>
+    </article>
+
+    <div>
+        <a href="{{ path('blog_edit', {'id': article.id}) }}" class="btn">Edit</a>
+        <a href="{{ path('blog_del', {'id': article.id}) }}" class="btn">Delete</a>
+    </div>
+{% endblock %}
