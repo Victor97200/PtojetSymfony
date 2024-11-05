@@ -2,44 +2,38 @@
 
 namespace App\Controller;
 
+use App\Repository\ArticleRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class BlogController extends AbstractController
 {
+    private ArticleRepository $articleRepo;
+
+    public function __construct(ArticleRepository $articleRepo)
+    {
+        $this->articleRepo = $articleRepo;
+    }
 
     #[Route('/blog/{page}', name: 'blog', requirements: ['page' => '\d+'], defaults: ['page' => 1])]
     public function listAction(): Response
     {
-        $articles = [
-            ['id' => 1, 'title' => 'Article 1', 'content' => 'This is the content for Article 1.'],
-            ['id' => 2, 'title' => 'Article 2', 'content' => 'This is the content for Article 2.'],
-            // Add more articles as needed
-        ];
+        $articles = $this->articleRepo->findBy([], ['createdAt' => 'DESC']);
 
         return $this->render('blog/list.html.twig', ['articles' => $articles]);
     }
 
     #[Route('/blog/article/{idArticle}', name: 'blog_article', requirements: ['idArticle' => '\d+'], defaults: ['idArticle' => 1])]
-    public function viewAction($idArticle): Response
+    public function viewAction(int $idArticle): Response
     {
-        $articles = [
-            ['id' => 1, 'title' => 'Article 1', 'content' => 'This is the content for Article 1.'],
-            ['id' => 2, 'title' => 'Article 2', 'content' => 'This is the content for Article 2.'],
-            ['id' => 3, 'title' => 'Article 3', 'content' => 'This is the content for Article 3.'],
-        ];
+        $article = $this->articleRepo->find((int) $idArticle);
 
-        $filteredArticles = array_filter($articles, function($art) use ($idArticle) {
-            return $art['id'] == $idArticle;
-        });
-
-        if (empty($filteredArticles)) {
+        if (!$article) {
             throw $this->createNotFoundException('The article does not exist');
         }
 
-        return $this->render('blog/view.html.twig', ['article' => reset($filteredArticles)]);
+        return $this->render('blog/view.html.twig', ['article' => $article]);
     }
 
     #[Route('/blog/article/add', name: 'blog_add')]
@@ -51,7 +45,7 @@ class BlogController extends AbstractController
             $this->addFlash('info', "Article ajouté avec succès!");
             return $this->redirectToRoute('blog_list');
         }
-        return new response("formulaire");
+        return $this->render('blog/form.html.twig');
     }
 
     #[Route('/blog/article/edit/{idArticle}', name: 'blog_edit', requirements: ['idArticle' => '\d+'], defaults: ['idArticle' => 1])]
@@ -63,7 +57,7 @@ class BlogController extends AbstractController
             $this->addFlash('info', "Article édité avec succès!");
             return $this->redirectToRoute('blog_list');
         }
-        return new Response("formulaire");
+        return $this->render('blog/form.html.twig');
     }
 
     #[Route('/blog/article/delete/{idArticle}', name: 'blog_del', requirements: ['idArticle' => '\d+'], defaults: ['idArticle' => 1])]
@@ -77,17 +71,15 @@ class BlogController extends AbstractController
         }
         return new Response('formulaire');
     }
-    #[Route('/last-articles', name: 'last-articles')]
-    public function lastArticlesAction($nbArticles): Response
+    #[Route('/last-articles/{nbArticles}', name: 'last-articles', requirements: ['nbArticles' => '\d+'], defaults: ['nbArticles' => 1])]
+    public function lastArticlesAction(int $nbArticles): Response
     {
-        $articles = [
-            ['id' => 1, 'title' => 'Article 1', 'content' => 'This is the content for Article 1.'],
-            ['id' => 2, 'title' => 'Article 2', 'content' => 'This is the content for Article 2.'],
-            ['id' => 3, 'title' => 'Article 3', 'content' => 'This is the content for Article 3.'],
-        ];
-        for ($i = 1; $i <= $nbArticles; $i++) {
-            $articles[] = ['id' => $i, 'title' => 'Article ' . $i, 'content' => 'This is content for article ' . $i];
-        }
+        $articles = $this->articleRepo->findBy(
+            [],
+            ['createdAt' => 'DESC'],
+            $nbArticles
+        );
+
         return $this->render('blog/last_articles.html.twig',['articles' => $articles]);
     }
 
