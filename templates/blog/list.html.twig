@@ -5,6 +5,26 @@
         <article>
             <h2>{{ article.title }}</h2>
             <p>{{ article.content }}</p>
+
+            {% for comment in article.comments %}
+                <div>
+                    <p>{{ comment.getMessage }}</p>
+                </div>
+            {% endfor %}
+
+            <a href="{{ path('blog_article', {'idArticle': article.id}) }}">Read More</a>
         </article>
     {% endfor %}
+
+    {% if total_pages > 1 %}
+        <div class="navigation">
+            {% for i in 1..total_pages %}
+                {% if i == current_page %}
+                    <span>{{ i }}</span>
+                {% else %}
+                    <a href="{{ path('blog', {'currentPage': i, 'nbPerPage': nbPerPage }) }}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
 {% endblock %}

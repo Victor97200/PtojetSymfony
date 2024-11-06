@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Article;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -12,18 +13,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class ArticleRepository extends ServiceEntityRepository
 {
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Article::class);
-    }
-
-    public function findPublishedArticles($limit = null)
-    {
-        return $this->findBy(
-            ['status' => 'published'], // status = 'published'
-            ['createdAt' => 'DESC'],  // orderBy createdAt DESC
-            $limit                    // limit
-        );
     }
 
     public function show(int $id): Response
@@ -41,6 +34,34 @@ class ArticleRepository extends ServiceEntityRepository
             'article' => $article,
         ]);
     }
+    public function remove(Article $article): bool
+    {
+        $entityManager = $this->getEntityManager();
+
+        try {
+            $entityManager->remove($article);
+            $entityManager->flush();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    public function getPaginatedArticles(int $currentPage, int $nbPerPage): Paginator
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+
+        $queryBuilder->select('a', 'c')
+        ->from('App\Entity\Article', 'a')
+            ->leftJoin('a.comments', 'c')
+            ->orderBy('c.createdAt', 'DESC')
+            ->setFirstResult($nbPerPage*($currentPage-1))
+            ->setMaxResults($nbPerPage); // limit
+
+        $query = $queryBuilder->getQuery();
+
+        return new Paginator($query);
+    }
+
     //    /**
     //     * @return Article[] Returns an array of Article objects
     //     */

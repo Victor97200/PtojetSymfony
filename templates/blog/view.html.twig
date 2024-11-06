@@ -9,7 +9,7 @@
     </article>
 
     <div>
-        <a href="{{ path('blog_edit', {'id': article.id}) }}" class="btn">Edit</a>
-        <a href="{{ path('blog_del', {'id': article.id}) }}" class="btn">Delete</a>
+        <a href="{{ path('blog_edit', {'idArticle': article.id}) }}" class="btn">Edit</a>
+        <a href="{{ path('blog_del', {'idArticle': article.id}) }}" class="btn">Delete</a>
     </div>
 {% endblock %}

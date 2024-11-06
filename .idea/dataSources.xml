@@ -7,6 +7,10 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/database/data.db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
+      <driver-properties>
+        <property name="date_string_format" value="yyyy-MM-dd HH:mm:ss" />
+        <property name="date_class" value="TEXT" />
+      </driver-properties>
     </data-source>
   </component>
 </project>
