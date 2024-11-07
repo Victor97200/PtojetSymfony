@@ -37,6 +37,7 @@ class Article
     #[ORM\Column]
     private ?bool $published = null;
 
+
     /**
      * @var Collection<int, Comment>
      */

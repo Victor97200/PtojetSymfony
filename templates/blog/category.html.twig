@@ -1,0 +1,11 @@
+{% if articles is defined and articles|length > 0 %}
+        <ul>
+                {% for article in articles %}
+                        <li>
+                                {{ article.title }}S
+                        </li>
+                {% endfor %}
+        </ul>
+{% else %}
+        <p>No articles found for this category.</p>
+{% endif %}

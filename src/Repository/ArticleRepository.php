@@ -62,6 +62,17 @@ class ArticleRepository extends ServiceEntityRepository
         return new Paginator($query);
     }
 
+    public function findWithCategories($id)
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.categories', 'c')
+            ->addSelect('c')
+            ->where('a.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return Article[] Returns an array of Article objects
     //     */

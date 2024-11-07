@@ -6,6 +6,13 @@
     <article>
         <h2>{{ article.title }}</h2>
         <p>{{ article.content }}</p>
+
+        <h3>Categories:</h3>
+        <ul>
+            {% for category in categories %}
+                <li>{{ category.name }}</li>
+            {% endfor %}
+        </ul>
     </article>
 
     <div>

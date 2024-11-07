@@ -1,0 +1,14 @@
+
+{% if categories is defined and categories|length > 0 %}
+    <ul>
+        {% for category in categories %}
+            <li>
+                <a href="{{ path('blog_category', {'categoryId': category.id}) }}">
+                    {{ category.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No categories found.</p>
+{% endif %}
