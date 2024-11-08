@@ -22,7 +22,7 @@
                 {% if i == current_page %}
                     <span>{{ i }}</span>
                 {% else %}
-                    <a href="{{ path('blog', {'currentPage': i, 'nbPerPage': nbPerPage }) }}">{{ i }}</a>
+                    <a href="{{ path('blog_list', {'currentPage': i, 'nbPerPage': nbPerPage }) }}">{{ i }}</a>
                 {% endif %}
             {% endfor %}
         </div>

@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use AllowDynamicProperties;
 use App\Entity\Article;
-use App\Entity\ArticleType;
 use App\Entity\Category;
+use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,7 +28,7 @@ class BlogController extends AbstractController
         $this->categoryRepo = $categoryRepo;
     }
 
-    #[Route('/blog/{currentPage}', name: 'blog', requirements: ['currentPage' => '\d+'], defaults: ['currentPage' => 1])]
+    #[Route('/blog/{currentPage}', name: 'blog_list', requirements: ['currentPage' => '\d+'], defaults: ['currentPage' => 1])]
     public function listAction(int $currentPage): Response
     {
         $nbPerPage = $this->getParameter('articles_per_page');
@@ -50,13 +50,17 @@ class BlogController extends AbstractController
     }
 
     #[Route('/blog/article/{idArticle}', name: 'blog_article', requirements: ['idArticle' => '\d+'])]
-    public function viewAction(int $idArticle): Response
+    public function viewAction(int $idArticle, EntityManagerInterface $em): Response
     {
         $article = $this->articleRepo->findWithCategories($idArticle);
 
         if (!$article) {
             throw $this->createNotFoundException('No article found with the id: ' . $idArticle);
         }
+
+        // Increment views
+        $article->setNbViews($article->getNbViews() + 1);
+        $em->flush();
 
         $categories = $article->getCategories();
 
@@ -67,31 +71,52 @@ class BlogController extends AbstractController
     }
 
     #[Route('/blog/article/add', name: 'blog_add')]
-    public function addAction(): Response
+    public function addAction(Request $request, EntityManagerInterface $em): Response
     {
-        $article = new ArticleType();
+        $article = new Article();
+        $article->setNbViews(1);
+        $article->setCreatedAt(new \DateTime());
+        $form = $this->createForm(ArticleType::class, $article);
 
-        $form = $this->createFormBuilder($article)
-            ->add('title', TextType::class)
-            ->add('content', TextareaType::class)
-            ->add('save', SubmitType::class, ['label' => 'Add a new article'])
-            ->getForm();
+        $form->add('send', SubmitType::class, ['label' => 'Add a new article']);
+        $form->handleRequest($request);
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($article);
+            $em->flush();
+            $this->addFlash('info', "Article added successfully!");
+
+            return $this->redirectToRoute('blog_list');
+        }
         return $this->render('blog/form.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
     #[Route('/blog/article/edit/{idArticle}', name: 'blog_edit', requirements: ['idArticle' => '\d+'], defaults: ['idArticle' => 1])]
-    public function editAction(): Response
+    public function editAction(int $idArticle, Request $request, EntityManagerInterface $em): Response
     {
-        if (false) {
-            // Traitement du formulaire
-            // Message de succès
-            $this->addFlash('info', "Article édité avec succès!");
-            return $this->redirectToRoute('blog');
+        $article = $em->getRepository(Article::class)->find($idArticle);
+
+        if (!$article) {
+            throw $this->createNotFoundException('No article found for id '.$idArticle);
         }
-        return $this->render('blog/form.html.twig');
+
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->add('send', SubmitType::class, ['label' => 'Edit an article']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $article->setUpdateAt(new \DateTime());  // Update updatedAt field
+            $em->flush();
+            $this->addFlash('info', "Article updated successfully!");
+
+            return $this->redirectToRoute('blog_list');
+        }
+
+        return $this->render('blog/form.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route('/blog/article/delete/{idArticle}', name: 'blog_del', requirements: ['idArticle' => '\d+'])]

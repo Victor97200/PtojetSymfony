@@ -1,8 +1,15 @@
 {% extends 'blog/blog.html.twig' %}
-{% block h1 %}Add new article{% endblock %}
+{% block h1 %}Edit article{% endblock %}
 {% block content_blog %}
     {{ form_start(form) }}
+
     {{ form_row(form.title) }}
-    {{ form_row(form.content) }}
+
+    {{ form_label(form.content) }}
+    {{ form_widget(form.content) }}
+    {{ form_errors(form.content) }}
+
+    {{ form_row(form.published) }}
+
     {{ form_end(form) }}
 {% endblock %}
