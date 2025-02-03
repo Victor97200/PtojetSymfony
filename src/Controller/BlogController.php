@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\SpamFinder;
 use AllowDynamicProperties;
 use App\Entity\Article;
 use App\Entity\Category;
@@ -21,11 +22,13 @@ class BlogController extends AbstractController
 {
     private ArticleRepository $articleRepo;
     private CategoryRepository $categoryRepo;
+    private $spamFinder;
 
-    public function __construct(ArticleRepository $articleRepo, CategoryRepository $categoryRepo)
+    public function __construct(ArticleRepository $articleRepo, CategoryRepository $categoryRepo, SpamFinder $spamFinder)
     {
         $this->articleRepo = $articleRepo;
         $this->categoryRepo = $categoryRepo;
+        $this->spamFinder = $spamFinder;
     }
 
     #[Route('/blog/{currentPage}', name: 'blog_list', requirements: ['currentPage' => '\d+'], defaults: ['currentPage' => 1])]
@@ -81,13 +84,22 @@ class BlogController extends AbstractController
         $form->add('send', SubmitType::class, ['label' => 'Add a new article']);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($article);
-            $em->flush();
-            $this->addFlash('info', "Article added successfully!");
+        if ($form->isSubmitted()) {
+            $content = $article->getContent();
+            if ($this->spamFinder->isSpam($content)) {
+                $this->addFlash('error', 'Le contenu de l\'article est considéré comme spam.');
+                return $this->redirectToRoute('blog_add'); // Ou réafficher le formulaire avec un message d'erreur
+            }
 
-            return $this->redirectToRoute('blog_list');
+            if ($form->isValid()) {
+                $em->persist($article);
+                $em->flush();
+                $this->addFlash('info', "Article ajouté avec succès!");
+
+                return $this->redirectToRoute('blog_list');
+            }
         }
+
         return $this->render('blog/form.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -99,19 +111,27 @@ class BlogController extends AbstractController
         $article = $em->getRepository(Article::class)->find($idArticle);
 
         if (!$article) {
-            throw $this->createNotFoundException('No article found for id '.$idArticle);
+            throw $this->createNotFoundException('Aucun article trouvé pour cet ID '.$idArticle);
         }
 
         $form = $this->createForm(ArticleType::class, $article);
         $form->add('send', SubmitType::class, ['label' => 'Edit an article']);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $article->setUpdateAt(new \DateTime());  // Update updatedAt field
-            $em->flush();
-            $this->addFlash('info', "Article updated successfully!");
+        if ($form->isSubmitted()) {
+            $content = $article->getContent();
+            if ($this->spamFinder->isSpam($content)) {
+                $this->addFlash('error', 'Le contenu de l\'article est considéré comme spam.');
+                return $this->redirectToRoute('blog_edit', ['idArticle' => $idArticle]); // Ou réafficher le formulaire avec un message d'erreur
+            }
 
-            return $this->redirectToRoute('blog_list');
+            if ($form->isValid()) {
+                $article->setUpdateAt(new \DateTime());  // Met à jour la date de mise à jour
+                $em->flush();
+                $this->addFlash('info', "Article mis à jour avec succès!");
+
+                return $this->redirectToRoute('blog_list');
+            }
         }
 
         return $this->render('blog/form.html.twig', [

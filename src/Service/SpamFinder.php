@@ -7,34 +7,32 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class SpamFinder
 {
-    private array $spamKeywords;
+    private $logger;
+    private $requestStack;
+    private $spamWords;
 
-    private LoggerInterface $logger;
-
-    private RequestStack $requestStack;
-
-    public function __construct(array $spamKeywords, LoggerInterface $logger, RequestStack $requestStack)
+    public function __construct(LoggerInterface $logger, RequestStack $requestStack, array $spamWords = ['aaaaa', 'sdfsdf'])
     {
-        $this->spamKeywords = $spamKeywords;
         $this->logger = $logger;
         $this->requestStack = $requestStack;
+        $this->spamWords = $spamWords;
     }
 
     public function isSpam(string $text): bool
     {
-        $spamDetected = false;
-        foreach ($this->spamKeywords as $keyword) {
-            if (stripos($text, $keyword) !== false) {
-                $spamDetected = true;
-                break;
+        foreach ($this->spamWords as $word) {
+            if (strpos($text, $word) !== false) {
+                $this->logSpam($text);
+                return true;
             }
         }
+        return false;
+    }
 
-        if ($spamDetected) {
-            $clientIP = $this->requestStack->getCurrentRequest() ? $this->requestStack->getCurrentRequest()->getClientIp() : 'undefined IP';
-            $this->logger->info('Spam detected', ['message' => $text, 'ip' => $clientIP]);
-        }
-
-        return $spamDetected;
+    private function logSpam(string $message)
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        $ip = $request ? $request->getClientIp() : 'unknown';
+        $this->logger->info("Spam detected: $message from IP: $ip");
     }
 }

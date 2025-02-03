@@ -11,6 +11,16 @@
     <a href="{{ path('home') }}">Accueil</a>
     <a href="{{ path('blog_list') }}">Blog</a>
     <a href="{{ path('a-propos') }}">A propos</a>
+
+    <!-- Gestion de l'affichage: utilisateur connecté ou non -->
+    <div class="user-section">
+        {% if app.user %}
+            Bonjour, {{ app.user.username }} !
+            <a href="{{ path('app_logout') }}">Déconnexion</a>
+        {% else %}
+            <a href="{{ path('app_login') }}">Connexion</a>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block left_menu %}
