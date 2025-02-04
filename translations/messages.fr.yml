@@ -1,0 +1,58 @@
+Blog_controller:
+      access_denied: "Vous ne passerez pas !"
+      page_not_found: "Page non trouvée"
+      article_not_found: "Article non trouvé avec l'ID: {id}"
+      spam_detected: "Le contenu de l'article est considéré comme spam."
+      article_added_successfully: "Article ajouté avec succès!"
+      no_article_found_for_id: "Aucun article trouvé pour cet ID: {id}"
+      article_updated_successfully: "Article mis à jour avec succès!"
+      article_does_not_exist: "L'article n'existe pas"
+      article_deleted_successfully: "Article supprimé avec succès!"
+      category_not_found: "Catégorie non trouvée"
+
+
+DefaultController:
+      about: 'à propos'
+
+login:
+      title: "Connectez-vous !"
+      logged_in_as: "Vous êtes connecté en tant que %username%,"
+      logout: "Se déconnecter"
+      please_sign_in: "Veuillez vous connecter"
+      username: "Nom d'utilisateur"
+      password: "Mot de passe"
+      remember_me: "Se souvenir de moi"
+      sign_in: "Se connecter"
+
+default_title: "Titre de page par défaut"
+default_h1: "Titre h1 par défault"
+menu:
+      home: "Accueil"
+      blog: "Blog"
+      about: "A propos"
+      hello: "Bonjour,"
+      logout: "Déconnexion"
+      login: "Connexion"
+      categories: "Catégories"
+      last_articles: "Derniers articles"
+content:
+      home: "Contenu de la page d’accueil ici"
+about: 'About'
+
+add_new_article: "Ajouter un nouveau article"
+
+blog_page: "Page du blog"
+welcome_blog_page: "Bienvenue sur la page du blog"
+add_article: "Ajouter un article"
+my_blog: "Mon blog"
+blog_description: "Bienvenue sur notre blog. Ici, nous partageons nos pensées, idées et expériences."
+no_articles: "Aucun article trouvé pour cette catégorie."
+no_categories: "Aucune catégorie trouvée."
+edit_article: "Modifier l'article"
+new_article: "Nouveau Article"
+read_more: "Lire la suite"
+no_articles_found: "Aucun article trouvé"
+article_details: "Détails de l'article"
+categories: "Catégories"
+edit: "Modifier"
+delete: "Supprimer"

@@ -1,8 +1,8 @@
 {% for article in articles | slice(0, 3) %}
     <article>
         <h3>{{ article.title }}</h3>
-        <a href="{{ path('blog_article', {'idArticle': article.id}) }}">Read More</a>
+        <a href="{{ path('blog_article', {'idArticle': article.id}) }}">{{ 'read_more'|trans }}</a>
     </article>
 {% else %}
-    <p>No articles found</p>
+    <p>{{ 'no_articles_found'|trans }}</p>
 {% endfor %}

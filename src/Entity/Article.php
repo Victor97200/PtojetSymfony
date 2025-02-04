@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Article
 {
     #[ORM\Id]
@@ -224,5 +225,12 @@ class Article
         return $this;
     }
 
+    #[ORM\PrePersist]
+    public function setDefaultAuthor(): void
+    {
+        if ($this->author === null) {
+            $this->author = 'anonymous';
+        }
+    }
 
 }

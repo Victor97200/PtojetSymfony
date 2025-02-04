@@ -27,6 +27,6 @@ class SpamController extends AbstractController
             return new Response("Le texte est considéré comme spam.");
         }
 
-        return new Response("Le texte est sain.");
+        return new Response("Le texte est valide.");
     }
 }

@@ -1,7 +1,7 @@
-{% extends 'blog\blog.html.twig' %}
+{% extends 'blog/blog.html.twig' %}
 
-{% block h1 %}Add New Article{% endblock %}
+{% block h1 %}{{ 'add_new_article'|trans }}{% endblock %}
 
 {% block content_blog %}
-    {% include 'blog\form.html.twig' %}
+    {% include 'blog/form.html.twig' %}
 {% endblock %}

@@ -1,4 +1,3 @@
-
 {% if categories is defined and categories|length > 0 %}
     <ul>
         {% for category in categories %}
@@ -10,5 +9,5 @@
         {% endfor %}
     </ul>
 {% else %}
-    <p>No categories found.</p>
+    <p>{{ 'no_categories'|trans }}</p>
 {% endif %}

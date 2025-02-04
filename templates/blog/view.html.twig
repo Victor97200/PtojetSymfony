@@ -1,13 +1,13 @@
 {% extends 'blog/blog.html.twig' %}
 
-{% block h1 %}Article Details{% endblock %}
+{% block h1 %}{{ 'article_details'|trans }}{% endblock %}
 
 {% block content_blog %}
     <article>
         <h2>{{ article.title }}</h2>
         <p>{{ article.content }}</p>
 
-        <h3>Categories:</h3>
+        <h3>{{ 'categories'|trans }}:</h3>
         <ul>
             {% for category in categories %}
                 <li>{{ category.name }}</li>
@@ -16,7 +16,7 @@
     </article>
 
     <div>
-        <a href="{{ path('blog_edit', {'idArticle': article.id}) }}" class="btn">Edit</a>
-        <a href="{{ path('blog_del', {'idArticle': article.id}) }}" class="btn">Delete</a>
+        <a href="{{ path('blog_edit', {'idArticle': article.id}) }}" class="btn">{{ 'edit'|trans }}</a>
+        <a href="{{ path('blog_del', {'idArticle': article.id}) }}" class="btn">{{ 'delete'|trans }}</a>
     </div>
 {% endblock %}

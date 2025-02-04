@@ -2,32 +2,37 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %} Titre de page par défaut {% endblock %}</title>
+    <title>{% block title %}{{ 'default_title'|trans }}{% endblock %}</title>
 </head>
 <body>
-<h1>{% block h1 %} Titre h1 par défault {% endblock %}</h1>
+<h1>{% block h1 %}{{ 'default_h1'|trans }}{% endblock %}</h1>
 
 {% block menu %}
-    <a href="{{ path('home') }}">Accueil</a>
-    <a href="{{ path('blog_list') }}">Blog</a>
-    <a href="{{ path('a-propos') }}">A propos</a>
+    <a href="{{ path('home') }}">{{ 'menu.home'|trans }}</a>
+    <a href="{{ path('blog_list') }}">{{ 'menu.blog'|trans }}</a>
+    <a href="{{ path('a-propos') }}">{{ 'menu.about'|trans }}</a>
 
     <!-- Gestion de l'affichage: utilisateur connecté ou non -->
     <div class="user-section">
         {% if app.user %}
-            Bonjour, {{ app.user.username }} !
-            <a href="{{ path('app_logout') }}">Déconnexion</a>
+            {{ 'menu.hello'|trans }} {{ app.user.username }} !
+            <a href="{{ path('app_logout') }}">{{ 'menu.logout'|trans }}</a>
         {% else %}
-            <a href="{{ path('app_login') }}">Connexion</a>
+            <a href="{{ path('app_login') }}">{{ 'menu.login'|trans }}</a>
         {% endif %}
+    </div>
+
+    <div class="language-selector">
+        <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({_locale: 'fr'})) }}">FR</a>
+        <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({_locale: 'en'})) }}">EN</a>
     </div>
 {% endblock %}
 
 {% block left_menu %}
-    <h3>Categories</h3>
+    <h3>{{ 'menu.categories'|trans }}</h3>
     {{ render(controller('App\\Controller\\BlogController::listAllCategoriesAction')) }}
 
-    <h3>Last Articles</h3>
+    <h3>{{ 'menu.last_articles'|trans }}</h3>
     {{ render(controller('App\\Controller\\BlogController::lastArticlesAction',{'nbArticles':3})) }}
 {% endblock %}
 
@@ -40,7 +45,7 @@
 {% endfor %}
 
 {% block content %}
-    <p>Contenu de la page d’accueil ici</p>
+    <p>{{ 'content.home'|trans }}</p>
 {% endblock %}
 </body>
 </html>

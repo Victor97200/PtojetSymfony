@@ -1,0 +1,59 @@
+
+access_denied: "You shall not pass!"
+page_not_found: "Page not found"
+article_not_found: "No article found with the ID: {id}"
+spam_detected: "The content of the article is considered as spam."
+article_added_successfully: "Article added successfully!"
+no_article_found_for_id: "No article found for this ID: {id}"
+article_updated_successfully: "Article updated successfully!"
+article_does_not_exist: "The article does not exist"
+article_deleted_successfully: "Article deleted successfully!"
+category_not_found: "Category not found"
+
+
+DefaultController:
+      about: 'about'
+
+
+login:
+      title: "Log in!"
+      logged_in_as: "You are logged in as %username%,"
+      logout: "Logout"
+      please_sign_in: "Please sign in"
+      username: "Username"
+      password: "Password"
+      remember_me: "Remember me"
+      sign_in: "Sign in"
+
+
+default_title: "Default page title"
+default_h1: "Default h1 title"
+menu:
+      home: "Home"
+      blog: "Blog"
+      about: "About"
+      hello: "Hello,"
+      logout: "Logout"
+      login: "Login"
+      categories: "Categories"
+      last_articles: "Last articles"
+content:
+      home: "Content of the home page here"
+
+add_new_article: "Add new article"
+
+blog_page: "Blog Page"
+welcome_blog_page: "Welcome to the Blog Page"
+add_article: "Add an Article"
+my_blog: "My Blog"
+blog_description: "Welcome to our blog. Here, we share our thoughts, ideas, and experiences."
+no_articles: "No articles found for this category."
+no_categories: "No categories found."
+edit_article: "Edit Article"
+new_article: "New Article"
+read_more: "Read More"
+no_articles_found: "No articles found"
+article_details: "Article Details"
+categories: "Categories"
+edit: "Edit"
+delete: "Delete"

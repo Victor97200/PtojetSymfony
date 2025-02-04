@@ -1,6 +1,6 @@
 {% extends 'blog\blog.html.twig' %}
 
-{% block h1 %}Edit Article{% endblock %}
+{% block h1 %}{{ 'edit_article'|trans }}{% endblock %}
 
 {% block content_blog %}
     {% include 'blog\form.html.twig' %}
