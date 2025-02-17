@@ -15,6 +15,12 @@ services:
         autowire: true
         autoconfigure: false
         public: false
+    App\Service\ArticleMailer:
+        arguments:
+            $mailer: '@mailer.mailer'
+    App\Security\Voter\ArticleVoter:
+        tags:
+            - { name: security.voter }
     App\Controller\:
         resource: '../src/Controller'
         tags: [ 'controller.service_arguments' ]

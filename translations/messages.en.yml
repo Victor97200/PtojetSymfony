@@ -1,3 +1,4 @@
+# translations/messages.en.yml
 
 access_denied: "You shall not pass!"
 page_not_found: "Page not found"
@@ -10,10 +11,8 @@ article_does_not_exist: "The article does not exist"
 article_deleted_successfully: "Article deleted successfully!"
 category_not_found: "Category not found"
 
-
 DefaultController:
-      about: 'about'
-
+      about: 'About'
 
 login:
       title: "Log in!"
@@ -24,7 +23,6 @@ login:
       password: "Password"
       remember_me: "Remember me"
       sign_in: "Sign in"
-
 
 default_title: "Default page title"
 default_h1: "Default h1 title"

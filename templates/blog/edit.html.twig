@@ -1,7 +1,10 @@
-{% extends 'blog\blog.html.twig' %}
+{% extends 'blog/blog.html.twig' %}
 
 {% block h1 %}{{ 'edit_article'|trans }}{% endblock %}
+{% if is_granted('edit', article) %}
 
 {% block content_blog %}
     {% include 'blog\form.html.twig' %}
 {% endblock %}
+
+{% endif %}

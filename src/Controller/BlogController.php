@@ -2,22 +2,19 @@
 
 namespace App\Controller;
 
+use App\Service\ArticleMailer;
 use App\Service\SpamFinder;
-use AllowDynamicProperties;
 use App\Entity\Article;
-use App\Entity\Category;
 use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -25,8 +22,8 @@ class BlogController extends AbstractController
 {
     private ArticleRepository $articleRepo;
     private CategoryRepository $categoryRepo;
-    private $spamFinder;
-
+    private SpamFinder $spamFinder;
+    private TranslatorInterface $translator;
 
     public function __construct(ArticleRepository $articleRepo, CategoryRepository $categoryRepo, SpamFinder $spamFinder, TranslatorInterface $translator)
     {
@@ -36,7 +33,7 @@ class BlogController extends AbstractController
         $this->translator = $translator;
     }
 
-    #[Route('/{_locale}/blog/{currentPage}', name: 'blog_list', requirements: ['currentPage' => '\d+'], defaults: [ 'currentPage' => 1])]
+    #[Route('/{_locale}/blog/{currentPage}', name: 'blog_list', requirements: ['currentPage' => '\d+'], defaults: ['currentPage' => 1])]
     public function listAction(int $currentPage): Response
     {
         if (!$this->isGranted('ROLE_USER')) {
@@ -44,9 +41,7 @@ class BlogController extends AbstractController
         }
 
         $nbPerPage = $this->getParameter('articles_per_page');
-
         $paginator = $this->articleRepo->getPaginatedArticles($currentPage, $nbPerPage);
-
         $nbTotalPages = ceil(count($paginator) / $nbPerPage);
 
         if ($currentPage > $nbTotalPages || $currentPage < 1) {
@@ -76,6 +71,7 @@ class BlogController extends AbstractController
 
         // Increment views
         $article->setNbViews($article->getNbViews() + 1);
+        $em->persist($article);
         $em->flush();
 
         $categories = $article->getCategories();
@@ -86,8 +82,33 @@ class BlogController extends AbstractController
         ]);
     }
 
+    #[Route('/{_locale}/blog/article/{slug}', name: 'blog_article_slug', requirements: ['slug' => '[a-z0-9\-]+'])]
+    public function viewSlugAction(string $slug, EntityManagerInterface $em): Response
+    {
+        if (!$this->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException($this->translator->trans('access_denied'));
+        }
 
-    #[Route('/{_locale}/blog/article/add', name: 'blog_add',)]
+        $article = $this->articleRepo->findOneBy(['slug' => $slug]);
+
+        if (!$article) {
+            throw $this->createNotFoundException($this->translator->trans('article_not_found', ['slug' => $slug]));
+        }
+
+        // Increment views
+        $article->setNbViews($article->getNbViews() + 1);
+        $em->persist($article);
+        $em->flush();
+
+        $categories = $article->getCategories();
+
+        return $this->render('blog/view.html.twig', [
+            'article' => $article,
+            'categories' => $categories
+        ]);
+    }
+
+    #[Route('/{_locale}/blog/article/add', name: 'blog_add', priority: 10)]
     public function addAction(Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -110,7 +131,9 @@ class BlogController extends AbstractController
             }
 
             if ($form->isValid()) {
-                // ...
+                $em->persist($article);
+                $em->flush();
+
                 $this->addFlash('info', $this->translator->trans('article_added_successfully'));
 
                 return $this->redirectToRoute('blog_list');
@@ -123,18 +146,16 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{_locale}/blog/article/edit/{idArticle}', name: 'blog_edit', requirements: ['idArticle' => '\d+'], defaults: ['idArticle' => 1])]
-    public function editAction(int $idArticle, Request $request, EntityManagerInterface $em): Response
+    public function editAction(int $idArticle, Request $request, EntityManagerInterface $em, Security $security): Response
     {
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            throw new AccessDeniedException($this->translator->trans('access_denied'));
-        }
-
         $article = $em->getRepository(Article::class)->find($idArticle);
 
         if (!$article) {
-            throw $this->createNotFoundException(
-                $this->translator->trans('no_article_found_for_id', ['id' => $idArticle])
-            );
+            throw $this->createNotFoundException($this->translator->trans('no_article_found_for_id', ['id' => $idArticle]));
+        }
+
+        if (!$security->isGranted('edit', $article)) {
+            throw new AccessDeniedException($this->translator->trans('access_denied'));
         }
 
         $form = $this->createForm(ArticleType::class, $article);
@@ -143,16 +164,20 @@ class BlogController extends AbstractController
 
         if ($form->isSubmitted()) {
             $content = $article->getContent();
-            if ($this->spamFinder->isSpam($content)) {
+            if ($content && $this->spamFinder->isSpam($content)) {
                 $this->addFlash('error', $this->translator->trans('spam_detected'));
                 return $this->redirectToRoute('blog_edit', ['idArticle' => $idArticle]);
             }
 
             if ($form->isValid()) {
-                // ...
-                $this->addFlash('info', $this->translator->trans('article_updated_successfully'));
+                $em->flush();
 
+                $this->addFlash('info', $this->translator->trans('article_updated_successfully'));
                 return $this->redirectToRoute('blog_list');
+            } else {
+                foreach ($form->getErrors(true, false) as $error) {
+                    dump($error->getMessage());
+                }
             }
         }
 
@@ -160,7 +185,6 @@ class BlogController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
     #[Route('/{_locale}/blog/article/delete/{idArticle}', name: 'blog_del', requirements: ['idArticle' => '\d+'])]
     public function deleteAction(int $idArticle): Response
@@ -181,28 +205,29 @@ class BlogController extends AbstractController
 
         return $this->redirectToRoute('blog_list');
     }
+
     #[Route('/{_locale}/last-articles/{nbArticles}', name: 'last-articles', requirements: ['nbArticles' => '\d+'], defaults: ['nbArticles' => 1])]
     public function lastArticlesAction(int $nbArticles): Response
     {
-
         $articles = $this->articleRepo->findBy(
             [],
             ['createdAt' => 'DESC'],
             $nbArticles
         );
 
-        return $this->render('blog/last_articles.html.twig',['articles' => $articles]);
+        return $this->render('blog/last_articles.html.twig', ['articles' => $articles]);
     }
 
     #[Route('/{_locale}/blog/categories', name: 'blog_categories', requirements: ['_locale' => 'fr|en'])]
-    public function listAllCategoriesAction(): Response {
-
-        $category = $this->categoryRepo->findAll();
-        return $this->render('blog/category_list.html.twig', ['categories' => $category]);
+    public function listAllCategoriesAction(): Response
+    {
+        $categories = $this->categoryRepo->findAll();
+        return $this->render('blog/category_list.html.twig', ['categories' => $categories]);
     }
 
     #[Route('/{_locale}/blog/category/{categoryId}', name: 'blog_category', requirements: ['_locale' => 'fr|en', 'categoryId' => '\d+'])]
-    public function listByCategoryAction(int $categoryId): Response {
+    public function listByCategoryAction(int $categoryId): Response
+    {
         if (!$this->isGranted('ROLE_USER')) {
             throw new AccessDeniedException($this->translator->trans('access_denied'));
         }
@@ -220,7 +245,4 @@ class BlogController extends AbstractController
             'category' => $category,
         ]);
     }
-
-
-
 }
