@@ -10,6 +10,7 @@ article_updated_successfully: "Article updated successfully!"
 article_does_not_exist: "The article does not exist"
 article_deleted_successfully: "Article deleted successfully!"
 category_not_found: "Category not found"
+articles_for_category: "Articles for category: %category%"
 
 DefaultController:
       about: 'About'

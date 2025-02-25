@@ -1,11 +1,16 @@
-{% if articles is defined and articles|length > 0 %}
+{% extends 'blog/blog.html.twig' %}
+
+{% block content_blog %}
+    <h2>{{ 'articles_for_category'|trans({'%category%': category.name}) }}</h2>
+    {% if articles is defined and articles|length > 0 %}
         <ul>
-                {% for article in articles %}
-                        <li>
-                                {{ article.title }}
-                        </li>
-                {% endfor %}
+            {% for article in articles %}
+                <li>
+                    {{ article.title }}
+                </li>
+            {% endfor %}
         </ul>
-{% else %}
+    {% else %}
         <p>{{ 'no_articles'|trans }}</p>
-{% endif %}
+    {% endif %}
+{% endblock %}

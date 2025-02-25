@@ -20,12 +20,12 @@ class Article
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\NotBlank]
     private ?string $title = null;
 
     #[Gedmo\Slug(fields: ['title'])]
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, unique: true)]
     private ?string $slug = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -39,16 +39,16 @@ class Article
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updateAt = null;
 
-    #[ORM\Column(length: 128)]
+    #[ORM\Column(type: Types::STRING, length: 128)]
     private ?string $author = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::INTEGER)]
     #[Assert\Positive]
     #[Assert\NotBlank]
     #[Assert\Valid]
     private ?int $nbViews = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private ?bool $published = null;
 
 
