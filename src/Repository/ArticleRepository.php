@@ -54,6 +54,7 @@ class ArticleRepository extends ServiceEntityRepository
         ->from('App\Entity\Article', 'a')
             ->leftJoin('a.comments', 'c')
             ->orderBy('c.createdAt', 'DESC')
+            ->where('a.published=true')
             ->setFirstResult($nbPerPage*($currentPage-1))
             ->setMaxResults($nbPerPage); // limit
 
@@ -62,16 +63,7 @@ class ArticleRepository extends ServiceEntityRepository
         return new Paginator($query);
     }
 
-    public function findWithCategories($id)
-    {
-        return $this->createQueryBuilder('a')
-            ->leftJoin('a.categories', 'c')
-            ->addSelect('c')
-            ->where('a.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
+
 
     //    /**
     //     * @return Article[] Returns an array of Article objects

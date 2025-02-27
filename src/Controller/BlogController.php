@@ -59,54 +59,58 @@ class BlogController extends AbstractController
     #[Route('/{_locale}/blog/article/{idArticle}', name: 'blog_article', requirements: ['idArticle' => '\d+'])]
     public function viewAction(int $idArticle, EntityManagerInterface $em): Response
     {
-        if (!$this->isGranted('ROLE_USER')) {
-            throw new AccessDeniedException($this->translator->trans('access_denied'));
-        }
-
-        $article = $this->articleRepo->findWithCategories($idArticle);
+        // Vérification des droits d'accès
+        $article = $this->articleRepo->find($idArticle);
 
         if (!$article) {
-            throw $this->createNotFoundException($this->translator->trans('article_not_found', ['id' => $idArticle]));
+            throw $this->createNotFoundException(
+                $this->translator->trans('article_not_found', ['id' => $idArticle])
+            );
         }
 
-        // Increment views
+        // Utilisation du Voter pour vérifier si l'article peut être consulté
+        $this->denyAccessUnlessGranted('view', $article);
+
+        $categories = $article->getCategories();
+
+        // Incrémentation des vues
         $article->setNbViews($article->getNbViews() + 1);
         $em->persist($article);
         $em->flush();
 
-        $categories = $article->getCategories();
-
         return $this->render('blog/view.html.twig', [
             'article' => $article,
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
+
+
 
     #[Route('/{_locale}/blog/article/{slug}', name: 'blog_article_slug', requirements: ['slug' => '[a-z0-9\-]+'])]
     public function viewSlugAction(string $slug, EntityManagerInterface $em): Response
     {
-        if (!$this->isGranted('ROLE_USER')) {
-            throw new AccessDeniedException($this->translator->trans('access_denied'));
-        }
-
         $article = $this->articleRepo->findOneBy(['slug' => $slug]);
 
         if (!$article) {
             throw $this->createNotFoundException($this->translator->trans('article_not_found', ['slug' => $slug]));
         }
 
+        // Utilisation du Voter pour vérifier si l'article peut être consulté
+        $this->denyAccessUnlessGranted('view', $article);
+
+        $categories = $article->getCategories();
+
         // Increment views
         $article->setNbViews($article->getNbViews() + 1);
         $em->persist($article);
         $em->flush();
 
-        $categories = $article->getCategories();
-
         return $this->render('blog/view.html.twig', [
             'article' => $article,
-            'categories' => $categories
+            'categories' => $categories,
         ]);
     }
+
 
     #[Route('/{_locale}/blog/article/add', name: 'blog_add', priority: 10)]
     public function addAction(Request $request, EntityManagerInterface $em): Response
@@ -210,8 +214,9 @@ class BlogController extends AbstractController
     public function lastArticlesAction(int $nbArticles): Response
     {
         $articles = $this->articleRepo->findBy(
-            [],
+            ['published' => true],
             ['createdAt' => 'DESC'],
+
             $nbArticles
         );
 

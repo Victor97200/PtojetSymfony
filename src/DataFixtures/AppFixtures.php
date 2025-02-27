@@ -60,7 +60,7 @@ class AppFixtures extends Fixture
         $adminUser = new User();
         $adminUser->setUsername('admin');
         $adminUser->setRoles(['ROLE_ADMIN']);
-        $adminUser->setPassword('$2y$13$agDuno4bvrc1JaUkCC7PaO03jFfC6Z1ogzjfsNd7KxFQfnnYOcfSG');
+        $adminUser->setPassword('$2y$13$agDuno4bvrc1JaUkCC7PaO03jFfC6Z1ogzjfsNd7KxFQfnnYOcfSG'); //123
         $adminUser->setNom('Victor');
         $adminUser->setPrenom('Buil');
         $adminUser->setDateNaissance(new \DateTime('1990-01-01'));
@@ -69,7 +69,7 @@ class AppFixtures extends Fixture
         $regularUser = new User();
         $regularUser->setUsername('user');
         $regularUser->setRoles(['ROLE_USER']);
-        $regularUser->setPassword('$2y$13$agDuno4bvrc1JaUkCC7PaO03jFfC6Z1ogzjfsNd7KxFQfnnYOcfSG');
+        $regularUser->setPassword('$2y$13$agDuno4bvrc1JaUkCC7PaO03jFfC6Z1ogzjfsNd7KxFQfnnYOcfSG'); //123
         $regularUser->setNom('Victor');
         $regularUser->setPrenom('Buil');
         $regularUser->setDateNaissance(new \DateTime('1990-01-01'));

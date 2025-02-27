@@ -19,7 +19,7 @@ class ArticleVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         // Articles can be viewed by everyone
-        if ('view' === $attribute) {
+        if ('view' === $attribute && $subject->isPublished()) {
             return true;
         }
 
